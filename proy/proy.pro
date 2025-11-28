@@ -20,6 +20,7 @@ FORMS += \
     mainwindow.ui
 
 HEADERS += \
+    entidad.h \
     mainwindow.h \
     personaje.h
 
