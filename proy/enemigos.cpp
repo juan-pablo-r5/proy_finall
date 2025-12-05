@@ -1,5 +1,4 @@
 #include "enemigos.h"
-
 #include <QBrush>
 #include <QColor>
 #include <QLineF>
@@ -123,6 +122,26 @@ QVector<QPixmap> enemigos::extraerFrames(int fila, int frameWidth, int frameHeig
     return frames;
 }
 
+void enemigos::setDireccion(bool derecha)
+{
+    mirandoDerecha = derecha;
+
+    // Voltear sprite
+    QPixmap frame = animacionActual->at(frameActual);
+
+    if (derecha)
+        frame = frame.transformed(QTransform().scale(-1, 1));  // mirar → si tu sprite base mira ←
+    else
+        frame = frame.transformed(QTransform().scale(1, 1));   // mirar ←
+
+    aplicarSprite(frame);
+
+    // Rotar cono de visión si lo usas
+    if (areaVision) {
+        areaVision->setRotation(derecha ? 0 : 180);
+    }
+}
+
 void enemigos::actualizarVision(const QRectF &objetivoRect)
 {
     if (!areaVision)
@@ -177,4 +196,8 @@ void enemigos::configurarPatrulla(double xMin, double xMax, double velocidad)
     velPatrulla = velocidad;
 
     velX = velocidad; // empieza moviéndose a la derecha
+}
+
+qreal enemigos::rangoVision() const {
+    return radioVision;
 }
