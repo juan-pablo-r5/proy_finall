@@ -52,6 +52,69 @@ enemigos::enemigos(QObject *parent)
     animTimer->start(100);
 }
 
+void enemigos::mover()
+{
+    // Si estamos en modo campo (nivel 3), ignoramos patrulla
+    if (modoCampo && objetivo) {
+        if (modoCampo && objetivo) {
+
+            QPointF dir = objetivo->posHitbox().center()
+            - sceneBoundingRect().center();
+
+            qreal dist = std::hypot(dir.x(), dir.y());
+            if (dist < 1)
+                return;
+
+            dir /= dist;
+
+            float intensidad = 0.6f;
+            if (dist < 150) intensidad = 1.2f;
+            if (dist < 60)  intensidad = 2.5f;
+
+            QPointF fuerza = dir * intensidad;
+
+            QPointF aceleracion = fuerza / masa;
+            velocidadCampo += aceleracion;
+
+            velocidadCampo *= 0.83f;
+
+            setPos(pos() + velocidadCampo);
+            return;
+        }
+
+    }
+
+    if (patrullaMin != patrullaMax) {
+
+        setPos(x() + velX, y());
+        if (x() < patrullaMin) {
+            velX = velPatrulla;
+
+            if (!mirandoDerecha) {
+                mirandoDerecha = true;
+                setPixmap(pixmap().transformed(QTransform().scale(-1, 1)));
+                areaVision->setRotation(0);
+            }
+        }
+        else if (x() > patrullaMax) {
+            velX = -velPatrulla;
+
+            if (mirandoDerecha) {
+                mirandoDerecha = false;
+                setPixmap(pixmap().transformed(QTransform().scale(-1, 1)));
+                areaVision->setRotation(180);
+            }
+        }
+    }
+}
+
+void enemigos::habilitarCampo(personaje *p)
+{
+    objetivo = p;
+    modoCampo = true;
+    velocidadCampo = QPointF(0, 0);
+}
+
 QVector<QPixmap> enemigos::extraerFrames(int fila, int frameWidth, int frameHeight, int cantidad) {
     QVector<QPixmap> frames;
     for (int i = 0; i < cantidad; ++i) {
@@ -59,8 +122,6 @@ QVector<QPixmap> enemigos::extraerFrames(int fila, int frameWidth, int frameHeig
     }
     return frames;
 }
-
-void enemigos::setVelocidadX(float v) { velX = v; }
 
 void enemigos::actualizarVision(const QRectF &objetivoRect)
 {
@@ -105,7 +166,15 @@ void enemigos::actualizarVision(const QRectF &objetivoRect)
     }
 }
 
-
 bool enemigos::jugadorDetectado() const {
     return objetivoEnVision;
+}
+
+void enemigos::configurarPatrulla(double xMin, double xMax, double velocidad)
+{
+    patrullaMin = xMin;
+    patrullaMax = xMax;
+    velPatrulla = velocidad;
+
+    velX = velocidad; // empieza moviéndose a la derecha
 }
