@@ -62,6 +62,50 @@ QVector<QPixmap> enemigos::extraerFrames(int fila, int frameWidth, int frameHeig
 
 void enemigos::setVelocidadX(float v) { velX = v; }
 
+void enemigos::actualizarVision(const QRectF &objetivoRect)
+{
+    if (!areaVision)
+        return;
+
+    QPointF enemigoPos = mapToScene(0,0);
+    QPointF jugadorPos = objetivoRect.center();
+
+    QPointF dirJugador = jugadorPos - enemigoPos;
+    qreal dist = std::hypot(dirJugador.x(), dirJugador.y());
+
+    if (dist > 0.1)
+        dirJugador /= dist;
+
+    QPointF dirVision = mirandoDerecha ? QPointF(1,0) : QPointF(-1,0);
+
+    if (dist > radioVision) {
+        // Apagar detección
+        if (objetivoEnVision) {
+            objetivoEnVision = false;
+            animacionActual = &framesIdle;
+            frameActual = 0;
+        }
+        return;
+    }
+
+    float dot = dirVision.x()*dirJugador.x() +
+                dirVision.y()*dirJugador.y();
+
+    bool dentroCono = (dot > 0.4f);
+
+    bool detectado = dentroCono;
+
+    if (detectado != objetivoEnVision) {
+
+        objetivoEnVision = detectado;
+
+        // Cambiar animación
+        animacionActual = detectado ? &framesAlerta : &framesIdle;
+        frameActual = 0;
+    }
+}
+
+
 bool enemigos::jugadorDetectado() const {
     return objetivoEnVision;
 }
