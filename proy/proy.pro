@@ -27,4 +27,5 @@ HEADERS += \
     personaje.h
 
 RESOURCES += \
+    resources.qrc \
     sprites.qrc

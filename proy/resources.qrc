@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/logos">
+        <file>Vikings-Logo-PNG-Images.png</file>
+    </qresource>
+    <qresource prefix="/sprites">
+        <file>VikingNoEffect-Sheet.png</file>
+        <file>Viking-Sheet.png</file>
+        <file>tesoro.png</file>
+        <file>enemigo1.png</file>
+        <file>space.png</file>
+        <file>j.png</file>
+        <file>d.png</file>
+        <file>s.png</file>
+        <file>a.png</file>
+        <file>w.png</file>
+        <file>proyectil.png</file>
+        <file>boat.png</file>
+    </qresource>
+    <qresource prefix="/backgrounds">
+        <file>background.jpg</file>
+        <file>background3.jpg</file>
+        <file>mar.jpg</file>
+    </qresource>
+    <qresource prefix="/sounds">
+        <file>nivel1_music.mp3</file>
+        <file>ataque.mp3</file>
+        <file>bomb.mp3</file>
+        <file>epic.mp3</file>
+    </qresource>
+</RCC>
