@@ -30,6 +30,8 @@ QGraphicsRectItem* crearPlataforma(QGraphicsScene *scene, int x, int y, int anch
     return plataforma;
 }
 
+}
+
 niveles::niveles(int numNivel, QWidget *parent)
     : QGraphicsView(parent),
     scene(new QGraphicsScene(this)),
@@ -56,11 +58,29 @@ niveles::niveles(int numNivel, QWidget *parent)
     }
 
     else if (nivelActual == 2) {
-
+        try {
+            musicaFondo->setSource(QUrl("qrc:/sounds/bomb.mp3"));
+            if (musicaFondo->source().isEmpty())
+                throw std::runtime_error("No se pudo cargar la música del nivel 1");
+        } catch (const std::exception &e) {
+            qDebug() << "ERROR:" << e.what();
+        }
+        audioSalida->setVolume(0.5);   // volumen entre 0.0 y 1.0
+        musicaFondo->setLoops(QMediaPlayer::Infinite);
+        musicaFondo->play();
     }
 
     else if (nivelActual == 3) {
-
+        try {
+            musicaFondo->setSource(QUrl("qrc:/sounds/epic.mp3"));
+            if (musicaFondo->source().isEmpty())
+                throw std::runtime_error("No se pudo cargar la música del nivel 1");
+        } catch (const std::exception &e) {
+            qDebug() << "ERROR:" << e.what();
+        }
+        audioSalida->setVolume(0.5);   // volumen entre 0.0 y 1.0
+        musicaFondo->setLoops(QMediaPlayer::Infinite);
+        musicaFondo->play();
     }
 
     // -- Visor de vidas ---
@@ -80,7 +100,11 @@ niveles::niveles(int numNivel, QWidget *parent)
     textoMonedas->move(10, 40); // debajo del contador de vidas
     textoMonedas->raise();
 
-
+    if (nivelActual == 3) {
+        textoMonedas->setText("Puntos: 0");
+        textoMonedas->setStyleSheet("color: red; font-size: 20px;");
+        textoMonedas->setFixedWidth(300);
+    }
 
 
 
@@ -114,9 +138,8 @@ niveles::niveles(int numNivel, QWidget *parent)
 
 
     crearPlataformas();
+
     generarCentinelas();
-
-
 
     // --- Cámara ---
     centerOn(player);
@@ -139,6 +162,253 @@ void niveles::mostrarMensajeBloqueo()
 
 }
 
+void niveles::actualizarEscena()
+{
+
+    if (!player) return;
+
+    if (nivelActual == 2) {
+
+        // mantener solo el movimiento horizontal
+        player->setPos(player->x() + player->getVelocidadX(), player->y());
+
+        // limitar al rango visible
+        if (player->x() < 0) player->setPos(0, player->y());
+        if (player->x() > 1500) player->setPos(1500, player->y());
+
+        // PROCESAR PROYECTILES
+        actualizarProyectilesNivel2();
+
+        return; // MUY IMPORTANTE: evita usar la física normal
+    }
+
+    player->actualizarFisica();
+
+    // --- Cámara sigue al jugador con un pequeño offset vertical ---
+    QPointF centro = player->pos();
+    centerOn(centro.x(), centro.y() - 100);
+
+    if (centro.x() < 0) {
+        player->setPos(0, 600);
+    }
+
+    if (centro.x() > 3700) {
+        player->setPos(3700, 600);
+    }
+
+    // ===========================
+    //  PROCESAR ENEMIGOS
+    // ===========================
+    for (enemigos *centinela : std::as_const(centinelas)) {
+        if (!centinela) continue;
+
+        if (nivelActual == 3) {
+
+            QRectF hitboxJugador = player->posHitbox();
+            QRectF enemigoRect   = centinela->sceneBoundingRect();
+
+            // Revisión de colisión ANTES de mover
+            if (hitboxJugador.intersects(enemigoRect)) {
+
+                scene->removeItem(centinela);
+                centinelas.removeOne(centinela);
+                delete centinela;
+
+                player->perderVida();
+                textoVidas->setText(QString("Vidas: %1").arg(player->vidas));
+
+                if (player->vidas <= 0)
+                    emit gameOver("muerte");
+
+                // detener el procesamiento de TODOS los enemigos
+                return;
+            }
+        }
+
+        if (nivelActual == 1) {
+
+            // --- Si ya tomó daño, ignoramos todo ---
+            if (jugadorRecibiendoDaño)
+                continue;
+
+            centinela->actualizarVision(player->posHitbox());
+
+            if (centinela->jugadorDetectado()) {
+
+                jugadorRecibiendoDaño = true;  // ← activamos el bloqueo
+                player->setEnabled(false);     // opcional, para congelar movimiento
+
+                // Mostrar sprite de alerta ya lo hace actualizarVision()
+
+                QTimer::singleShot(400, this, [this]() {
+
+                    // Aplicar daño
+                    player->setPos(0, 600);
+                    player->perderVida();
+                    textoVidas->setText(QString("Vidas: %1").arg(player->vidas));
+
+                    jugadorRecibiendoDaño = false; // ← se desbloquea después del daño
+                    player->setEnabled(true);
+
+                    if (player->vidas <= 0)
+                        emit gameOver("muerte");
+                });
+
+                return; // ← IMPORTANTE: detiene procesamiento de más enemigos
+            }
+        }
+
+        centinela->mover();
+    }
+
+    if (player->atacando) {
+        QRectF golpe = player->hitboxAtaque->sceneBoundingRect();
+
+        for (int i = 0; i < centinelas.size(); i++) {
+            enemigos *e = centinelas[i];
+            if (!e) continue;
+
+            if (golpe.intersects(e->sceneBoundingRect())) {
+
+                scene->removeItem(e);
+                centinelas.removeAt(i);
+                delete e;
+
+                if (nivelActual == 3) {
+                    enemigosEliminados++;
+                    textoMonedas->setText(
+                        QString("Puntos: %1").arg(enemigosEliminados)
+                        );
+                    qDebug() << " eliminados:" << enemigosEliminados;
+
+                    // 🔥 Condición de victoria AQUÍ
+                    if (enemigosEliminados >= enemigosMetaNivel3) {
+                        QMessageBox::information(this, "¡Victoria!",
+                                                 "Has eliminado a todos los enemigos.");
+                        emit gameOver("ganar");
+                        return;
+                    }
+                }
+
+                return;   // ← RETURN CORRECTO (solo 1)
+            }
+        }
+    }
+
+
+    for (int i = monedasEscena.size() - 1; i >= 0; i--) {
+        QGraphicsPixmapItem *m = monedasEscena[i];
+
+        if (player->posHitbox().intersects(m->sceneBoundingRect())) {
+
+            scene->removeItem(m);
+            delete m;
+            monedasEscena.removeAt(i);
+
+            monedas++;
+            textoMonedas->setText(QString("Cofres: %1").arg(monedas));
+
+            if (monedas >= 3) {
+                nivel1Completado = true;
+                QMessageBox::information(this, "¡Nivel completado!", "Has recolectado todas las monedas.");
+                emit gameOver("ganar");
+                return;
+            }
+        }
+    }
+
+    if (nivelActual == 2) {
+
+        QRectF boxJugador = player->posHitbox();
+
+        for (int i = proyectiles.size() - 1; i >= 0; i--) {
+            Proyectil *p = proyectiles[i];
+            p->actualizar();
+
+            // afuera de pantalla
+            if (p->y() > 900) {
+                scene->removeItem(p);
+                proyectiles.removeAt(i);
+                delete p;
+                continue;
+            }
+
+            // colisión con el barco
+            if (boxJugador.intersects(p->sceneBoundingRect())) {
+                scene->removeItem(p);
+                proyectiles.removeAt(i);
+                delete p;
+
+                player->perderVida();
+                textoVidas->setText(QString("Vidas: %1").arg(player->vidas));
+
+                if (player->vidas <= 0) {
+                    emit gameOver("muerte");
+                    return;
+                }
+            }
+        }
+
+        tiempoNivel2++;
+
+        // superar nivel 2 al sobrevivir 15 segundos
+        if (tiempoNivel2 >= 16 * 60) {
+            QMessageBox::information(this, "¡Nivel Completado!", "Has esquivado todos los disparos.");
+            emit gameOver("ganar");
+            return;
+        }
+    }
+
+}
+
+void niveles::keyPressEvent(QKeyEvent *event)
+{
+
+    if (nivelActual == 2) {
+        if (event->key() == Qt::Key_A) player->moverIzquierda();
+        else if (event->key() == Qt::Key_D) player->moverDerecha();
+        return;
+    }
+
+    switch (event->key()) {
+    case Qt::Key_A:
+        player->moverIzquierda();
+        break;
+    case Qt::Key_D:
+        player->moverDerecha();
+        break;
+    case Qt::Key_Space:
+        player->saltar();
+        break;
+    case Qt::Key_S:
+        player->deslizar();
+        break;
+    case Qt::Key_J:
+        if (nivelActual == 1) {
+            mostrarMensajeBloqueo();
+            break;
+        }
+        player->atacar();
+        break;
+    default:
+        QGraphicsView::keyPressEvent(event);
+        break;
+    }
+}
+
+void niveles::keyReleaseEvent(QKeyEvent *event)
+{
+    if (nivelActual == 2 && (event->key() == Qt::Key_A || event->key() == Qt::Key_D)) {
+        player->parar();
+        return;
+    }
+
+    if (event->key() == Qt::Key_A || event->key() == Qt::Key_D) {
+        player->parar();
+    } else {
+        QGraphicsView::keyReleaseEvent(event);
+    }
+}
 
 void niveles::configurarEscenaBase()
 {
@@ -218,8 +488,56 @@ void niveles::configurarEscenaBase()
         }
     }
 
-}
+    else if (nivelActual == 2) {
 
+        QPixmap bg(":/backgrounds/mar.jpg");
+
+        // Escalar al tamaño de la escena
+        bg = bg.scaled(1600, 800, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+        scene->setSceneRect(0, 0, 1600, 800);
+
+        QGraphicsPixmapItem *background = new QGraphicsPixmapItem(bg);
+        background->setPos(0, 0);
+        background->setZValue(0);
+
+        scene->addItem(background);
+
+        resetTransform();
+        scale(0.9, 0.9);
+        return;
+    }
+
+    else if (nivelActual == 3) {
+        scene->setSceneRect(0, 0, 1600, 800);
+        QPixmap bg(":/backgrounds/background3.jpg");
+        QGraphicsPixmapItem *background = new QGraphicsPixmapItem(bg);
+        background->setPos(0, 0);
+        background->setZValue(0);
+        scene->addItem(background);
+
+        resetTransform();
+        scale(0.9, 0.9);
+        return;
+    }
+    else {
+        bg.load(":/backgrounds/background.jpg");         // el que ya usas en nivel 1
+    }
+
+    const int backgroundTiles = 2;
+    const int levelWidth = bg.width() * backgroundTiles;
+    scene->setSceneRect(0, 0, levelWidth, 1080);
+
+    for (int i = 0; i < backgroundTiles; ++i) {
+        QGraphicsPixmapItem *background = new QGraphicsPixmapItem(bg);
+        background->setPos(i * bg.width(), 0);
+        background->setZValue(0);
+        scene->addItem(background);
+    }
+
+    resetTransform();  // limpia transformaciones anteriores
+    scale(0.8, 0.8);
+}
 
 void niveles::crearPlataformas()
 {
@@ -271,56 +589,6 @@ void niveles::crearPlataformas()
         scene->addItem(suelo);
     }
 }
-
-void niveles::keyPressEvent(QKeyEvent *event)
-{
-
-    if (nivelActual == 2) {
-        if (event->key() == Qt::Key_A) player->moverIzquierda();
-        else if (event->key() == Qt::Key_D) player->moverDerecha();
-        return;
-    }
-
-    switch (event->key()) {
-    case Qt::Key_A:
-        player->moverIzquierda();
-        break;
-    case Qt::Key_D:
-        player->moverDerecha();
-        break;
-    case Qt::Key_Space:
-        player->saltar();
-        break;
-    case Qt::Key_S:
-        player->deslizar();
-        break;
-    case Qt::Key_J:
-        if (nivelActual == 1) {
-            mostrarMensajeBloqueo();
-            break;
-        }
-        player->atacar();
-        break;
-    default:
-        QGraphicsView::keyPressEvent(event);
-        break;
-    }
-}
-
-void niveles::keyReleaseEvent(QKeyEvent *event)
-{
-    if (nivelActual == 2 && (event->key() == Qt::Key_A || event->key() == Qt::Key_D)) {
-        player->parar();
-        return;
-    }
-
-    if (event->key() == Qt::Key_A || event->key() == Qt::Key_D) {
-        player->parar();
-    } else {
-        QGraphicsView::keyReleaseEvent(event);
-    }
-}
-
 
 void niveles::generarCentinelas()
 {
@@ -412,7 +680,6 @@ void niveles::generarCentinelas()
         }
     }
 }
-
 
 void niveles::actualizarProyectilesNivel2()
 {
