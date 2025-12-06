@@ -1,20 +1,26 @@
 #ifndef PROYECTIL_H
 #define PROYECTIL_H
 
+#include "entidad.h"
 #include <QGraphicsPixmapItem>
 
-class Proyectil : public QGraphicsPixmapItem
-{
+class Proyectil : public QGraphicsPixmapItem, public Entidad {
 public:
-    float velY = 10;
+    Proyectil(const QPixmap &pix)
+        : QGraphicsPixmapItem(pix), Entidad(TipoEntidad::Proyectil)
+    {}
 
-    Proyectil(QPixmap sprite) {
-        setPixmap(sprite);
-    }
-
-    void actualizar() {
+    // Movimiento simple vertical
+    void moverBase() {
         setY(y() + velY);
     }
+
+    // Método polimórfico que Qt llama cada frame
+    void actualizar() override {
+        moverBase();
+    }
+
+    ~Proyectil() override {}
 };
 
 #endif
