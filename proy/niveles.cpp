@@ -114,6 +114,8 @@ niveles::niveles(int numNivel, QWidget *parent)
 
 
     crearPlataformas();
+    generarCentinelas();
+
 
 
     // --- Cámara ---
@@ -318,3 +320,96 @@ void niveles::keyReleaseEvent(QKeyEvent *event)
         QGraphicsView::keyReleaseEvent(event);
     }
 }
+
+
+void niveles::generarCentinelas()
+{
+    if (nivelActual == 3) {
+
+        // Timer para oleadas automáticas
+        QTimer *timerOleadas = new QTimer(this);
+
+        connect(timerOleadas, &QTimer::timeout, this, [this]() {
+
+            // Crear 2 enemigos a izquierda y derecha
+            for (int i = 0; i < 2; i++) {
+
+                // ENEMIGO IZQUIERDA  (entra por -100 → debe mirar hacia la derecha)
+                enemigos *eL = new enemigos(this);
+                eL->setPos(-100, 500);
+                eL->setZValue(2);
+                eL->habilitarCampo(player);
+                eL->setDireccion(true);      // → mirando a la derecha
+                centinelas.append(eL);
+                scene->addItem(eL);
+
+                // ENEMIGO DERECHA  (entra por width+100 → debe mirar hacia la izquierda)
+                enemigos *eR = new enemigos(this);
+                eR->setPos(scene->sceneRect().width() + 100, 500);
+                eR->setZValue(2);
+                eR->habilitarCampo(player);
+                eR->setDireccion(false);     // ← mirando a la izquierda
+                centinelas.append(eR);
+                scene->addItem(eR);
+
+            }
+        });
+
+        timerOleadas->start(2000); // cada 4 segundos
+        return;
+    }
+
+    else if (nivelActual == 2) {
+        QTimer *timerProyectiles = new QTimer(this);
+
+        connect(timerProyectiles, &QTimer::timeout, this, [this]() {
+
+            int xRand = QRandomGenerator::global()->bounded(50, 1500);
+
+            Proyectil *p = new Proyectil(
+                QPixmap(":/sprites/proyectil.png").scaled(80, 80, Qt::KeepAspectRatio, Qt::SmoothTransformation)
+                );
+
+            p->setPos(xRand, -50);
+            p->setZValue(3);
+
+            proyectiles.append(p);
+            scene->addItem(p);
+        });
+
+        timerProyectiles->start(220); // 1 proyectil cada 0.7s
+        return;
+    }
+
+    else if (nivelActual ==1){
+        const QList<QPointF> posiciones = {
+            {520, 750},
+            {1220, 620},
+            {2100, 640},
+            {3000, 650}
+        };
+
+        for (const QPointF &pos : posiciones) {
+            enemigos *centinela = new enemigos(this);
+            centinela->setZValue(2);
+            centinela->setPos(pos);
+            centinela->configurarPatrulla(pos.x() - 80, pos.x() + 80, 1.2);
+
+            // Alternar dirección inicial
+            static bool alternar = false;
+
+            if (alternar) {
+                centinela->setDireccion(false);  // empezar mirando a la izquierda
+                centinela->setVelocidadX(-1.2f);
+            } else {
+                centinela->setDireccion(true);   // empezar mirando a la derecha
+                centinela->setVelocidadX(1.2f);
+            }
+
+            alternar = !alternar;
+            centinelas.append(centinela);
+            scene->addItem(centinela);
+        }
+    }
+}
+
