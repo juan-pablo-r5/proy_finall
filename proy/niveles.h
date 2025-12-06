@@ -12,6 +12,8 @@
 
 
 #include "personaje.h"
+//#include "enemigos.h"
+//#include "proyectil.h"
 
 
 
@@ -28,6 +30,8 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 
+private slots:
+    void actualizarEscena();   // si luego quieres mover enemigos, etc.
 
 signals:
     void gameOver(QString motivo);
@@ -36,7 +40,7 @@ private:
     int enemigosEliminados = 0;
     int enemigosMetaNivel3 = 15;
     float velocidadBombas = 6.0f;
-
+    QList<Proyectil*> proyectiles;
     int tiempoNivel2 = 0;
     QMediaPlayer *musicaFondo;
     QAudioOutput *audioSalida;
@@ -49,7 +53,14 @@ private:
     personaje *player;
     QTimer *timerUpdate;
     int nivelActual;
+    QVector<enemigos*> centinelas;
+    QVector<QGraphicsPixmapItem*> monedasEscena;
 
+
+    void configurarEscenaBase();
+    void crearPlataformas();
+    void generarCentinelas();
+    void actualizarProyectilesNivel2();
 };
 
 #endif // NIVELES_H

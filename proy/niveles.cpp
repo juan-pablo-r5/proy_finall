@@ -413,3 +413,50 @@ void niveles::generarCentinelas()
     }
 }
 
+
+void niveles::actualizarProyectilesNivel2()
+{
+    QRectF boxJugador = player->posHitbox();
+
+    if (tiempoNivel2 % 120 == 0) {     // cada 2 segundos
+        velocidadBombas += 0.4;        // aumenta velocidad gradualmente
+    }
+
+    for (int i = proyectiles.size() - 1; i >= 0; i--) {
+        Proyectil *p = proyectiles[i];
+        p->setY(p->y() + velocidadBombas);
+
+        // Si sale de la pantalla
+        if (p->y() > 900) {
+            scene->removeItem(p);
+            proyectiles.removeAt(i);
+            delete p;
+            continue;
+        }
+
+        // Colisión con el jugador (barco)
+        if (boxJugador.intersects(p->sceneBoundingRect())) {
+            scene->removeItem(p);
+            proyectiles.removeAt(i);
+            delete p;
+
+            player->perderVida();
+            textoVidas->setText(QString("Vidas: %1").arg(player->vidas));
+
+            if (player->vidas <= 0) {
+                emit gameOver("muerte");
+                return;
+            }
+        }
+    }
+
+    tiempoNivel2++;
+
+    // 15 segundos → nivel superado
+    if (tiempoNivel2 >= 20 * 60) {
+        QMessageBox::information(this, "¡Nivel Completado!", "Has esquivado todos los disparos.");
+        nivel2Completado = true;
+        emit gameOver("ganar");
+        return;
+    }
+}
