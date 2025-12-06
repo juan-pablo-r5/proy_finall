@@ -7,18 +7,21 @@
 #include <QPixmap>
 #include <QPointF>
 #include "personaje.h"
+#include "entidad.h"
 
 
-class enemigos : public QObject, public QGraphicsPixmapItem {
+
+class enemigos : public QObject, public QGraphicsPixmapItem, public Entidad {
     Q_OBJECT
 
 public:
     explicit enemigos(QObject *parent = nullptr);
-    void setVelocidadX(float v);
+    void setVelocidadX(float v) { velX = v; }
     void mover();
     void habilitarCampo(personaje *p);
     void actualizarVision(const QRectF &objetivo);
-
+    QPointF ultimaPosJugador;
+    QPointF jugadorPosActual;
     bool jugadorDetectado() const;
     void configurarPatrulla(double xMin, double xMax, double velocidad);
     qreal rangoVision() const;
@@ -26,13 +29,24 @@ public:
 
     void actualizarFrame();
     void setDireccion(bool derecha);
+    QPointF getVelocidadCampo() const { return velocidadCampo; }
+    void setVelocidadCampo(const QPointF &v) { velocidadCampo = v; }
+    float getVelocidadX() const { return velX; }
+    float getVelocidadY() const { return velY; }
+    void moverBase();
+    void actualizar() override;
+
 private:
     // ---- SPRITES ----
     QPixmap spriteSheet;
     QVector<QPixmap> framesIdle;
     QVector<QPixmap> framesAlerta;
     bool mirandoDerecha = true;
+    float ultimaPosicionVisto = 0.0f;
+    float zonaPatrullaIzq;
+    float zonaPatrullaDer;
 
+    bool enPersecucion = false;
 
     QTimer *animTimer;
     int frameActual = 0;
