@@ -199,6 +199,7 @@ Makefile: ../proy/proy.pro ../../../../Qt/6.6.2/mingw_64/mkspecs/win32-g++/qmake
 		../../../../Qt/6.6.2/mingw_64/mkspecs/features/qt_config.prf \
 		../../../../Qt/6.6.2/mingw_64/mkspecs/win32-g++/qmake.conf \
 		../../../../Qt/6.6.2/mingw_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../../../Qt/6.6.2/mingw_64/mkspecs/features/exclusive_builds.prf \
 		../../../../Qt/6.6.2/mingw_64/mkspecs/features/toolchain.prf \
 		../../../../Qt/6.6.2/mingw_64/mkspecs/features/default_pre.prf \
@@ -224,7 +225,6 @@ Makefile: ../proy/proy.pro ../../../../Qt/6.6.2/mingw_64/mkspecs/win32-g++/qmake
 		../../../../Qt/6.6.2/mingw_64/mkspecs/features/lex.prf \
 		../proy/proy.pro \
 		../../../../Qt/6.6.2/mingw_64/lib/Qt6Core.prl \
-		.qmake.stash \
 		../../../../Qt/6.6.2/mingw_64/mkspecs/features/build_pass.prf \
 		../proy/sprites.qrc
 	$(QMAKE) -o Makefile ..\proy\proy.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
@@ -357,6 +357,7 @@ Makefile: ../proy/proy.pro ../../../../Qt/6.6.2/mingw_64/mkspecs/win32-g++/qmake
 ../../../../Qt/6.6.2/mingw_64/mkspecs/features/qt_config.prf:
 ../../../../Qt/6.6.2/mingw_64/mkspecs/win32-g++/qmake.conf:
 ../../../../Qt/6.6.2/mingw_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../../../Qt/6.6.2/mingw_64/mkspecs/features/exclusive_builds.prf:
 ../../../../Qt/6.6.2/mingw_64/mkspecs/features/toolchain.prf:
 ../../../../Qt/6.6.2/mingw_64/mkspecs/features/default_pre.prf:
@@ -382,7 +383,6 @@ Makefile: ../proy/proy.pro ../../../../Qt/6.6.2/mingw_64/mkspecs/win32-g++/qmake
 ../../../../Qt/6.6.2/mingw_64/mkspecs/features/lex.prf:
 ../proy/proy.pro:
 ../../../../Qt/6.6.2/mingw_64/lib/Qt6Core.prl:
-.qmake.stash:
 ../../../../Qt/6.6.2/mingw_64/mkspecs/features/build_pass.prf:
 ../proy/sprites.qrc:
 qmake: FORCE

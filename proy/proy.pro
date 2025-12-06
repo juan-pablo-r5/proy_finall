@@ -9,6 +9,7 @@ CONFIG += c++17 cmdline
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
+        niveles.cpp \
         personaje.cpp
 
 # Default rules for deployment.
@@ -22,6 +23,7 @@ FORMS += \
 HEADERS += \
     entidad.h \
     mainwindow.h \
+    niveles.h \
     personaje.h
 
 RESOURCES += \
