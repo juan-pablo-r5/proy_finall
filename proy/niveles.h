@@ -12,8 +12,8 @@
 
 
 #include "personaje.h"
-//#include "enemigos.h"
-//#include "proyectil.h"
+#include "enemigos.h"
+#include "proyectil.h"
 
 
 
@@ -23,8 +23,8 @@ class niveles : public QGraphicsView
 
 public:
     explicit niveles(int numNivel = 1, QWidget *parent = nullptr);
-    \
-        void mostrarMensajeBloqueo();
+\
+    void mostrarMensajeBloqueo();
 protected:
     // Para capturar el teclado en este nivel
     void keyPressEvent(QKeyEvent *event) override;
@@ -37,6 +37,7 @@ signals:
     void gameOver(QString motivo);
 
 private:
+    QList<Entidad*> entidades;
     int enemigosEliminados = 0;
     int enemigosMetaNivel3 = 15;
     float velocidadBombas = 6.0f;

@@ -4,13 +4,10 @@
 #include <QBrush>
 #include <QPen>
 #include <QString>
+#include "colisiones.h"
 
-float personaje::getVelocidadX() const
-{
-    return velocidadX;
-}
 
-personaje::personaje() {
+personaje::personaje() : Entidad(TipoEntidad::Jugador) {
     sonidoAtaque = new QMediaPlayer(this);
     audioAtaque = new QAudioOutput(this);
     sonidoAtaque->setAudioOutput(audioAtaque);
@@ -25,9 +22,10 @@ personaje::personaje() {
         qDebug() << "ERROR:" << e.what();
     }
 
-    vidas = 3;
+    vidas = 3;       // contador visual del jugador
     vidasMax = 3;
-    stats.vida = vidas;
+    vida = 3;        // vida real de la Entidad heredada
+
 
     hitbox = new QGraphicsRectItem(100, 130, 80, 50, this);
     hitbox->setBrush(QBrush(QColor(255, 0, 0, 0)));  // rojo semitransparente
@@ -79,6 +77,16 @@ QRectF personaje::posHitbox(){
 
 }
 
+void personaje::actualizar() {
+    actualizarFisica();
+}
+
+void personaje::moverBase() {
+    setX(x() + velX);
+    setY(y() + velY);
+}
+
+
 
 void personaje::perderVida() {
 
@@ -86,8 +94,9 @@ void personaje::perderVida() {
 
     invulnerable = true;
 
-    stats.recibirDaño(1);
-    vidas = stats.vida;
+    vida -= 1;
+    if (vida < 0) vida = 0;
+    vidas = vida;
 
     qDebug() << "Vidas restantes:" << vidas;
 
@@ -289,6 +298,35 @@ void personaje::actualizarFisica()
                 break;
             }
         }
+
+        else if (item->data(0).toString() == "plataforma_inelastica") {
+
+            Cuerpo jugador;
+            jugador.masa = 2.0f;
+            jugador.vel  = { velocidadX, velocidadY };
+
+            Cuerpo piso;
+            piso.masa = 1000000.0f;
+            piso.vel  = { 0.0f, 0.0f };
+
+            resolverColision(jugador, piso, INELASTICA, 0.2f);
+
+            velocidadX = jugador.vel.x;
+
+            float rebote = -velocidadY * 0.3f;
+            if (rebote < -2) rebote = -2; // límite
+
+            velocidadY = rebote;
+
+            QRectF box = item->sceneBoundingRect();
+            setY(box.top() - hitbox->rect().height() - 130);
+
+            enSuelo = true;
+            coyoteCounter = COYOTE_FRAMES;
+
+            animacionActual = &framesIdle;
+        }
+
     }
 
     // --- Si NO tocó piso ni plataforma ---

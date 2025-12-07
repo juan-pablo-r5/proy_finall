@@ -6,69 +6,93 @@
 #include <QObject>
 #include <QTimer>
 #include <QVector>
-#include <QMap>
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include "entidad.h"
 
-
-class personaje : public QObject, public QGraphicsPixmapItem {
+class personaje : public QObject, public QGraphicsPixmapItem, public Entidad {
     Q_OBJECT
 
 public:
-    float getVelocidadX() const;
-    Entidad stats;
-    int vidas = 3;        // número total de vidas
-    int vidasMax = 3;     // si quieres limitarlo
     personaje();
+
+    // GETTERS / SETTERS
+    float getVelocidadX() const { return velocidadX; }
+    float getVelocidadY() const { return velocidadY; }
+    void setVelocidadX(float v) { velocidadX = v; }
+    void setVelocidadY(float v) { velocidadY = v; }
+
+    // VIDA
+    int vidas = 3;
+    int vidasMax = 3;
+
+    void perderVida();
+    void morir();
+
+    // MOVIMIENTO / ACCIONES
     void moverIzquierda();
     void moverDerecha();
     void parar();
     void saltar();
-    void actualizarFisica();
     void deslizar();
     void atacar();
+
+    // FÍSICA
+    void actualizarFisica();
     QRectF posHitbox();
-    void perderVida();
+
+    // ATAQUE
     QGraphicsRectItem *hitboxAtaque;
     bool atacando = false;
+    void actualizar() override;
+    void moverBase();
 
-    void morir();
 private slots:
     void actualizarFrame();
 
 private:
+
+    // AUDIO
     QMediaPlayer *sonidoAtaque;
     QAudioOutput *audioAtaque;
+
+    // ESTADO
     bool invulnerable = false;
-    enum class EstadoAnimacion { Idle, Run, Jump, Slide, Attack };
+    bool accionEspecialActiva = false;   // <--- ESTE ES EL VERDADERO ESTADO ESPECIAL
+    bool enSuelo = true;
+    bool mirandoDerecha = true;
+
+    // VELOCIDADES
+    float velocidad = 3.0f;  // <--- AHORA EXISTE Y ES PÚBLICA PARA EL .CPP
+    float velocidadX = 0;
+    float velocidadY = 0;
+    float gravedad = 0.8f;
+
+    // COYOTE TIME
+    int coyoteCounter = 0;
+    const int COYOTE_FRAMES = 6;
+
+    // ANIMACIÓN
     QPixmap spriteSheet;
     QVector<QPixmap> framesIdle;
     QVector<QPixmap> framesRun;
-    QVector<QPixmap> framesSlide;
-    QVector<QPixmap> *animacionActual;
     QVector<QPixmap> framesJump;
+    QVector<QPixmap> framesSlide;
     QVector<QPixmap> framesAttack;
-    float velocidadY = 0;     // velocidad vertical
-    float gravedad = 0.8;     // gravedad constante
-    bool enSuelo = true;      // para evitar doble salto
-    float velocidadX = 0;  // velocidad horizontal
-    int frameActual;
-    bool mirandoDerecha;
-    bool accionEspecialActiva=false;
-    float velocidad;
-    int framesDesdeSuelo;
-    int coyoteFrames;
-    QGraphicsRectItem *hitbox;
-    QTimer *animTimer;
-    int coyoteCounter = 0;
-    const int COYOTE_FRAMES = 6;
-    QVector<QPixmap> extraerFrames(int y, int frameWidth, int frameHeight, int numFrames);
-    void cambiarAnimacion(EstadoAnimacion estado, bool reiniciarFrame = false);
-    void actualizarDireccion(bool aLaDerecha);
-    int getVidas() const { return vidas; }
-    void setVidas(int v) { vidas = qBound(0, v, vidasMax); }
 
+    QVector<QPixmap> *animacionActual;
+    int frameActual = 0;
+
+    // HITBOX
+    QGraphicsRectItem *hitbox;
+
+    // TIMER
+    QTimer *animTimer;
+
+    // INTERNAL METHODS
+    QVector<QPixmap> extraerFrames(int y, int frameWidth, int frameHeight, int numFrames);
+    void cambiarAnimacion(int estado, bool reiniciarFrame = false);
+    void actualizarDireccion(bool derecha);
 };
 
 #endif // PERSONAJE_H

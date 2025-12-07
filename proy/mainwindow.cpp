@@ -21,11 +21,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-
 void MainWindow::on_btnNivel1_clicked()
 {
-    game = new niveles(1, nullptr);   // <-- IMPORTANTE: SIN parent
+    game = new niveles(1, nullptr);
 
     connect(game, &niveles::gameOver, this, [this](QString motivo){
 
@@ -45,11 +43,6 @@ void MainWindow::on_btnNivel1_clicked()
     this->hide();   // oculta el menú
     game->show();   // muestra el nivel
 }
-
-
-
-
-
 void MainWindow::on_btnNivel2_clicked()
 {
 
@@ -88,7 +81,7 @@ void MainWindow::on_btnNivel3_clicked() {
     }
 
 
-    game = new niveles(3, nullptr);  // importante: nullptr para que no se cierre toda la app
+    game = new niveles(3, nullptr);
 
     connect(game, &niveles::gameOver, this, [this](QString motivo){
 

@@ -1,68 +1,219 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>953</width>
+    <height>628</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>MainWindow</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>240</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="btnNivel1">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>280</y>
+      <width>121</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: #2e2e2e;          /* Fondo oscuro */
+    color: #f0c674;                     /* Dorado suave */
+    border: 2px solid #c8a045;          /* Borde dorado */
+    border-radius: 10px;                /* Bordes redondeados */
+    padding: 8px 15px;                  /* Espaciado interno */
+    font-family: &quot;Segoe UI&quot;;            /* Fuente moderna */
+    font-weight: bold;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: all 0.2s ease-in-out;   /* Transición suave */
+}
+
+QPushButton:hover {
+    background-color: #c8a045;          /* Fondo dorado */
+    color: #2e2e2e;                     /* Texto oscuro */
+    border: 2px solid #f0c674;
+    transform: scale(1.05);             /* Ligero aumento */
+}
+
+QPushButton:pressed {
+    background-color: #a37c27;          /* Dorado más oscuro */
+    color: white;
+    border: 2px solid #c8a045;
+    transform: scale(0.97);
+}
+
+QPushButton:disabled {
+    background-color: #555555;
+    color: #aaaaaa;
+    border: 2px solid #777777;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Nivel 1</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnNivel2">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>280</y>
+      <width>121</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: #2e2e2e;          /* Fondo oscuro */
+    color: #f0c674;                     /* Dorado suave */
+    border: 2px solid #c8a045;          /* Borde dorado */
+    border-radius: 10px;                /* Bordes redondeados */
+    padding: 8px 15px;                  /* Espaciado interno */
+    font-family: &quot;Segoe UI&quot;;            /* Fuente moderna */
+    font-weight: bold;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: all 0.2s ease-in-out;   /* Transición suave */
+}
+
+QPushButton:hover {
+    background-color: #c8a045;          /* Fondo dorado */
+    color: #2e2e2e;                     /* Texto oscuro */
+    border: 2px solid #f0c674;
+    transform: scale(1.05);             /* Ligero aumento */
+}
+
+QPushButton:pressed {
+    background-color: #a37c27;          /* Dorado más oscuro */
+    color: white;
+    border: 2px solid #c8a045;
+    transform: scale(0.97);
+}
+
+QPushButton:disabled {
+    background-color: #555555;
+    color: #aaaaaa;
+    border: 2px solid #777777;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Nivel 2</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnNivel3">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>280</y>
+      <width>121</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: #2e2e2e;          /* Fondo oscuro */
+    color: #f0c674;                     /* Dorado suave */
+    border: 2px solid #c8a045;          /* Borde dorado */
+    border-radius: 10px;                /* Bordes redondeados */
+    padding: 8px 15px;                  /* Espaciado interno */
+    font-family: &quot;Segoe UI&quot;;            /* Fuente moderna */
+    font-weight: bold;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: all 0.2s ease-in-out;   /* Transición suave */
+}
+
+QPushButton:hover {
+    background-color: #c8a045;          /* Fondo dorado */
+    color: #2e2e2e;                     /* Texto oscuro */
+    border: 2px solid #f0c674;
+    transform: scale(1.05);             /* Ligero aumento */
+}
+
+QPushButton:pressed {
+    background-color: #a37c27;          /* Dorado más oscuro */
+    color: white;
+    border: 2px solid #c8a045;
+    transform: scale(0.97);
+}
+
+QPushButton:disabled {
+    background-color: #555555;
+    color: #aaaaaa;
+    border: 2px solid #777777;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Nivel 3</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>110</y>
+      <width>421</width>
+      <height>431</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="resources.qrc">:/logos/Vikings-Logo-PNG-Images.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>30</y>
+      <width>491</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Viking-Normal</family>
+      <pointsize>24</pointsize>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: transparent;
+    color: #f0c674;  </string>
+    </property>
+    <property name="text">
+     <string>Honor Of Vikings</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignmentFlag::AlignCenter</set>
+    </property>
+   </widget>
+   <zorder>label</zorder>
+   <zorder>btnNivel1</zorder>
+   <zorder>btnNivel2</zorder>
+   <zorder>btnNivel3</zorder>
+   <zorder>label_2</zorder>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
 </ui>
